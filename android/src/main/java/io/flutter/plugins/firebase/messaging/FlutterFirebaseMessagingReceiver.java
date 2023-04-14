@@ -195,7 +195,7 @@ public class FlutterFirebaseMessagingReceiver extends BroadcastReceiver {
 
 //                    cancel(ctx, details);
                     manager.removeView(inflater);
-                    cancelOrAcceptAmbulanceBooking(ctx, recordId, "accept", cookies);
+                    cancelOrAcceptAmbulanceBooking(ctx, recordId, "enquiry", cookies);
                   }
                 });
 
