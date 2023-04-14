@@ -112,7 +112,7 @@ public class FlutterFirebaseMessagingReceiver extends BroadcastReceiver {
       try {
         JSONObject body = new JSONObject();
         body.put("recordId",recordId);
-        JsonRequest<JSONObject> request = new JsonObjectRequest(Request.Method.PUT,url, body, new Response.Listener<JSONObject>() {
+        JsonRequest<JSONObject> request = new JsonObjectRequest(Request.Method.POST,url, body, new Response.Listener<JSONObject>() {
           @Override
           public void onResponse(JSONObject response) {
             Log.d("response", response.toString());
@@ -266,7 +266,7 @@ public class FlutterFirebaseMessagingReceiver extends BroadcastReceiver {
       body.put("status", status);
       body.put("recordId",recordId);
 
-      JsonRequest<JSONObject> request = new JsonObjectRequest(Request.Method.POST ,api, body,new Response.Listener<JSONObject>() {
+      JsonRequest<JSONObject> request = new JsonObjectRequest(Request.Method.PUT ,api, body,new Response.Listener<JSONObject>() {
         @Override
         public void onResponse(JSONObject response) {
           Log.d("AcceptReject",response.toString());
