@@ -45,6 +45,7 @@ import java.util.TimeZone;
 import model.AmbData;
 import model.AmbResult;
 import model.BookingDetailsModel;
+import android.widget.Toast;
 
 public class FlutterFirebaseMessagingReceiver extends BroadcastReceiver {
   private static final String TAG = "FLTFireMsgReceiver";
@@ -78,6 +79,8 @@ public class FlutterFirebaseMessagingReceiver extends BroadcastReceiver {
     Log.d("TAG",remoteMessage.getData().toString());
     if(remoteMessage.getData().get("type").equals("poster")){
       showAmbulanceReminder(context,remoteMessage.getData().get("recordId"),"nocookie");
+    }else{
+      Toast.makeText(context, "Type not equal to poster", Toast.LENGTH_SHORT).show();
     }
 
     if (FlutterFirebaseMessagingUtils.isApplicationForeground(context)) {
@@ -104,7 +107,7 @@ public class FlutterFirebaseMessagingReceiver extends BroadcastReceiver {
     SharedPreferences preferences = ctx.getSharedPreferences("CookiesPreference", Context.MODE_PRIVATE);
     String cookies = preferences.getString("savedCookies", "");
 
-    if (!cookie.equals("")) {
+//    if (!cookie.equals("")) {
       final RequestQueue queue = Volley.newRequestQueue(ctx);
       final String url = "https://app.hospinity.com/admin/ambulance/order/details";
 
@@ -116,7 +119,7 @@ public class FlutterFirebaseMessagingReceiver extends BroadcastReceiver {
           @Override
           public void onResponse(JSONObject response) {
             Log.d("response", response.toString());
-
+            Toast.makeText(context, "Api Called Successfully", Toast.LENGTH_SHORT).show();
             BookingDetailsModel res = new Gson().fromJson(response.toString(), BookingDetailsModel.class);
             AmbData data = res.getData();
             try {
@@ -224,6 +227,7 @@ public class FlutterFirebaseMessagingReceiver extends BroadcastReceiver {
           @Override
           public void onErrorResponse(VolleyError error) {
             // Log.e("Api Call Error", error.getMessage());
+          Toast.makeText(ctx, "Error Occured while calling api"+ error.getLocalizedMessage().toString(), Toast.LENGTH_SHORT).show();
           }
         }) {
           @Override
@@ -250,9 +254,9 @@ public class FlutterFirebaseMessagingReceiver extends BroadcastReceiver {
       }
 
 
-    } else {
-      Log.e("Cookie", "Cookie is not coming");
-    }
+//    } else {
+//      Log.e("Cookie", "Cookie is not coming");
+//    }
 
   }
 
@@ -270,6 +274,7 @@ public class FlutterFirebaseMessagingReceiver extends BroadcastReceiver {
         @Override
         public void onResponse(JSONObject response) {
           Log.d("AcceptReject",response.toString());
+          Toast.makeText(ctx, "Thanks for your response, have a nice day", Toast.LENGTH_SHORT).show();
         }
       }, new Response.ErrorListener() {
         @Override
