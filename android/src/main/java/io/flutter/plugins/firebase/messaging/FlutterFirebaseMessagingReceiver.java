@@ -122,7 +122,7 @@ public class FlutterFirebaseMessagingReceiver extends BroadcastReceiver {
             Toast.makeText(ctx, "Api Called Successfully", Toast.LENGTH_SHORT).show();
             BookingDetailsModel res = new Gson().fromJson(response.toString(), BookingDetailsModel.class);
             AmbData data = res.getData();
-            try {
+            // try {
               
                 WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
@@ -189,11 +189,11 @@ public class FlutterFirebaseMessagingReceiver extends BroadcastReceiver {
 
                 });
               
-            } catch (Exception e) {
-              Log.e("Exception", e.getMessage());
-               Toast.makeText(ctx, "Exception occured while showing Popup "+ e.getMessage(), Toast.LENGTH_LONG).show();
+            // } catch (Exception e) {
+            //   Log.e("Exception", e.getMessage());
+            //    Toast.makeText(ctx, "Exception occured while showing Popup "+ e.getMessage(), Toast.LENGTH_LONG).show();
               
-            }
+            // }
           }
 
         }, new Response.ErrorListener() {
