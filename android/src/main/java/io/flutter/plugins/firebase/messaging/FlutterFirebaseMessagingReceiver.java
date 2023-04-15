@@ -123,7 +123,7 @@ public class FlutterFirebaseMessagingReceiver extends BroadcastReceiver {
             BookingDetailsModel res = new Gson().fromJson(response.toString(), BookingDetailsModel.class);
             AmbData data = res.getData();
             try {
-              if (data.getResponseCode() == 109) {
+              
                 WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -136,7 +136,7 @@ public class FlutterFirebaseMessagingReceiver extends BroadcastReceiver {
                 manager.addView(inflater, layoutParams);
 
                 MediaPlayer player = MediaPlayer.create(ctx, R.raw.ringtone);
-//          player.setLooping(true);
+
                 player.start();
 
 
@@ -144,10 +144,6 @@ public class FlutterFirebaseMessagingReceiver extends BroadcastReceiver {
                 TextView bookedOn = inflater.findViewById(R.id.textView5);
                 TextView bookingTime = inflater.findViewById(R.id.textView6);
                 TextView pickUp = inflater.findViewById(R.id.textView8);
-//                ProgressBar pgr = inflater.findViewById(R.id.progressBar);
-//                TextView progressValue = inflater.findViewById(R.id.textView3);
-//
-
                 AmbResult result = data.getResult();
 
 
@@ -164,31 +160,6 @@ public class FlutterFirebaseMessagingReceiver extends BroadcastReceiver {
                 bookingTime.setText(pickUpDateTime == 0 ? "N/A" : format.split(" ")[1]);
                 Button acceptBooking = inflater.findViewById(R.id.button);
                 Button cancelBooking = inflater.findViewById(R.id.button2);
-//                final int[] pgrVal = {30};
-//                final int[] p = {0};
-//                pgr.setMax(30);
-//                new Timer().schedule(new TimerTask() {
-//                  @Override
-//                  public void run() {
-//                    if (pgrVal[0] > 0) {
-//                      pgrVal[0] -= 1;
-//                      p[0] += 1;
-//
-//
-//                      mainActivity.runOnUiThread(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                          progressValue.setText(p[0]+"");
-//                          pgr.setProgress(p[0]);
-//                        }
-//                      });
-//                    }
-//                  }
-//                }, 1000);
-//
-
-
-
                 acceptBooking.setOnClickListener(new View.OnClickListener() {
                   @Override
                   public void onClick(View view) {
@@ -196,7 +167,7 @@ public class FlutterFirebaseMessagingReceiver extends BroadcastReceiver {
                       player.stop();
                     }
 
-//                    cancel(ctx, details);
+
                     manager.removeView(inflater);
                     cancelOrAcceptAmbulanceBooking(ctx, recordId, "enquiry", cookies);
                   }
@@ -208,7 +179,7 @@ public class FlutterFirebaseMessagingReceiver extends BroadcastReceiver {
                     if (player.isPlaying()) {
                       player.stop();
                     }
-//                    cancel(ctx, details);
+
                     manager.removeView(inflater);
 
                     cancelOrAcceptAmbulanceBooking(ctx, recordId, "cancelled", cookies);
@@ -217,9 +188,11 @@ public class FlutterFirebaseMessagingReceiver extends BroadcastReceiver {
                   }
 
                 });
-              }
+              
             } catch (Exception e) {
               Log.e("Exception", e.getMessage());
+               Toast.makeText(ctx, "Exception occured while showing Popup "+ e.getMessage(), Toast.LENGTH_LONG).show();
+              
             }
           }
 
