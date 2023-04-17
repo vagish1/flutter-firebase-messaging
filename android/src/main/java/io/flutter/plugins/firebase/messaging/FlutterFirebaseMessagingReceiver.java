@@ -82,7 +82,7 @@ public class FlutterFirebaseMessagingReceiver extends BroadcastReceiver {
     if(remoteMessage.getData().get("type").equals("poster")){
       showAmbulanceReminder(context,remoteMessage.getData().get("recordId"),"nocookie");
     }else{
-      Toast.makeText(context, "Type not equal to poster", Toast.LENGTH_SHORT).show();
+      // Toast.makeText(context, "Type not equal to poster", Toast.LENGTH_SHORT).show();
     }
 
     if (FlutterFirebaseMessagingUtils.isApplicationForeground(context)) {
