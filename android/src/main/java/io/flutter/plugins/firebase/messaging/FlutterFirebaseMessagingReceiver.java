@@ -163,7 +163,7 @@ public class FlutterFirebaseMessagingReceiver extends BroadcastReceiver {
                  bookedBy.setText(resultRes.get("userName").toString());
                  pickUp.setText(resultRes.get("fragmentedAddress").toString());
                   Date date = new Date(pickUpDateTime * 1000);
-                  SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy hh:mm aa" Locale.getDefault());
+                  SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy hh:mm aa", Locale.getDefault());
                   formatter.setTimeZone(TimeZone.getDefault());
 //
                   String format = formatter.format(date);
