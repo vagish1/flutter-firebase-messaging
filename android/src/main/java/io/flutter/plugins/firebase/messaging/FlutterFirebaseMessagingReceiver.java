@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.PixelFormat;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,6 +31,7 @@ import com.android.volley.toolbox.JsonRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
+import com.google.gson.internal.LinkedTreeMap;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -42,9 +44,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
-import model.AmbData;
-import model.AmbResult;
-import model.BookingDetailsModel;
+// import model.AmbData;
+// import model.AmbResult;
+// import model.BookingDetailsModel;
 import android.widget.Toast;
 
 public class FlutterFirebaseMessagingReceiver extends BroadcastReceiver {
@@ -119,82 +121,104 @@ public class FlutterFirebaseMessagingReceiver extends BroadcastReceiver {
           @Override
           public void onResponse(JSONObject response) {
             Log.d("response", response.toString());
-            Toast.makeText(ctx, response.toString(), Toast.LENGTH_LONG).show();
-            Toast.makeText(ctx, "Api Called Successfully", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(ctx, response.toString(), Toast.LENGTH_LONG).show();
+//            Toast.makeText(ctx, "Api Called Successfully", Toast.LENGTH_SHORT).show();
+
             System.out.println(response.toString());
-            BookingDetailsModel res = new Gson().fromJson(response.toString(), BookingDetailsModel.class);
-            AmbData data = res.getData();
             try {
-              
-                WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT,
-                        WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-                        WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
-                        PixelFormat.TRANSPARENT);
+//              HashMap res2 = (HashMap) response.get("data");
+//
+//              if ((int) res2.get("responseCode") == 109) {
 
-                View inflater = LayoutInflater.from(ctx).inflate(R.layout.ambulance_reminder, null);
-                WindowManager manager = (WindowManager) ctx.getSystemService(Context.WINDOW_SERVICE);
-                manager.addView(inflater, layoutParams);
+                // BookingDetailsModel res = new Gson().fromJson(response.toString(), BookingDetailsModel.class);
+                // AmbData data = res.getData();
+                try {
+                  LinkedTreeMap<String, Object> responseMaap = new Gson().fromJson(response.toString(), LinkedTreeMap.class);
+                  LinkedTreeMap dataRes = (LinkedTreeMap) responseMaap.get("data");
+                  LinkedTreeMap resultRes = (LinkedTreeMap)  dataRes.get("result");
 
-                MediaPlayer player = MediaPlayer.create(ctx, R.raw.ringtone);
+                  WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams(
+                          ViewGroup.LayoutParams.MATCH_PARENT,
+                          ViewGroup.LayoutParams.WRAP_CONTENT,
+                          WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+                          WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+                          PixelFormat.TRANSPARENT);
 
-                player.start();
-
-
-                TextView bookedBy = inflater.findViewById(R.id.textView2);
-                TextView bookedOn = inflater.findViewById(R.id.textView5);
-                TextView bookingTime = inflater.findViewById(R.id.textView6);
-                TextView pickUp = inflater.findViewById(R.id.textView8);
-                AmbResult result = data.getResult();
+                  View inflater = LayoutInflater.from(ctx).inflate(R.layout.ambulance_reminder, null);
+                  WindowManager manager = (WindowManager) ctx.getSystemService(Context.WINDOW_SERVICE);
 
 
-                long pickUpDateTime = result.getPickUpDateTime();
-
-                bookedBy.setText(result.getUserName().toString());
-                pickUp.setText(result.getFragmentedAddress().toString());
-                Date date = new Date(pickUpDateTime*1000);
-                SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss.SSS", Locale.getDefault());
-                formatter.setTimeZone(TimeZone.getDefault());
-                Log.d("PickUpAt",result.getPickUpDateTime()+"" );
-                String format = formatter.format(date);
-                bookedOn.setText(pickUpDateTime == 0 ? "N/A" : format.split(" ")[0]);
-                bookingTime.setText(pickUpDateTime == 0 ? "N/A" : format.split(" ")[1]);
-                Button acceptBooking = inflater.findViewById(R.id.button);
-                Button cancelBooking = inflater.findViewById(R.id.button2);
-                acceptBooking.setOnClickListener(new View.OnClickListener() {
-                  @Override
-                  public void onClick(View view) {
-                    if (player.isPlaying()) {
-                      player.stop();
-                    }
-
-
-                    manager.removeView(inflater);
-                    cancelOrAcceptAmbulanceBooking(ctx, recordId, "enquiry", cookies);
-                  }
-                });
-
-                cancelBooking.setOnClickListener(new View.OnClickListener() {
-                  @Override
-                  public void onClick(View view) {
-                    if (player.isPlaying()) {
-                      player.stop();
-                    }
-
-                    manager.removeView(inflater);
-
-                    cancelOrAcceptAmbulanceBooking(ctx, recordId, "cancelled", cookies);
-
-
+                  TextView bookedBy = inflater.findViewById(R.id.textView2);
+                  TextView bookedOn = inflater.findViewById(R.id.textView5);
+                  TextView bookingTime = inflater.findViewById(R.id.textView6);
+                  TextView pickUp = inflater.findViewById(R.id.textView8);
+                  // AmbResult result = data.getResult();
+                  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    Log.wtf("RuntimeType",resultRes.get("pickUpDateTime").getClass().getTypeName());
                   }
 
-                });
-              
-            } catch (Exception e) {
-              Log.e("Exception", e.getMessage());
-               Toast.makeText(ctx, "Exception occured while showing Popup "+ e.getMessage(), Toast.LENGTH_LONG).show();
-              
+                  double pickUpDt = Double.parseDouble(resultRes.get("pickUpDateTime").toString());
+                  long pickUpDateTime = new Double(pickUpDt).longValue();
+
+                 bookedBy.setText(resultRes.get("userName").toString());
+                 pickUp.setText(resultRes.get("fragmentedAddress").toString());
+                  Date date = new Date(pickUpDateTime * 1000);
+                  SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss.SSS", Locale.getDefault());
+                  formatter.setTimeZone(TimeZone.getDefault());
+//
+                  String format = formatter.format(date);
+                  bookedOn.setText(pickUpDateTime == 0 ? "N/A" : format.split(" ")[0]);
+                  bookingTime.setText(pickUpDateTime == 0 ? "N/A" : format.split(" ")[1]);
+                  Button acceptBooking = inflater.findViewById(R.id.button);
+                  Button cancelBooking = inflater.findViewById(R.id.button2);
+                  MediaPlayer player = MediaPlayer.create(ctx, R.raw.ringtone);
+
+
+                  acceptBooking.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                      if (player.isPlaying()) {
+                        player.stop();
+                      }
+
+
+                      manager.removeView(inflater);
+                      cancelOrAcceptAmbulanceBooking(ctx, recordId, "enquiry", cookies);
+                    }
+                  });
+
+                  cancelBooking.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                      if (player.isPlaying()) {
+                        player.stop();
+                      }
+
+                      manager.removeView(inflater);
+
+                      cancelOrAcceptAmbulanceBooking(ctx, recordId, "cancelled", cookies);
+
+
+                    }
+
+                  });
+                  player.start();
+                  manager.addView(inflater, layoutParams);
+
+
+
+
+                } catch (Exception e) {
+                  e.printStackTrace();
+                  Log.e("Exception", e.getMessage());
+                  Toast.makeText(ctx, "Exception occured while showing Popup " + e.getMessage(), Toast.LENGTH_LONG).show();
+
+                }
+//              } else {
+//                Toast.makeText(ctx, "Response code is not valid", Toast.LENGTH_LONG).show();
+//              }
+            }catch  (Exception e){
+              e.printStackTrace();
             }
           }
 
