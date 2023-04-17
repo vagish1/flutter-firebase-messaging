@@ -119,6 +119,7 @@ public class FlutterFirebaseMessagingReceiver extends BroadcastReceiver {
           @Override
           public void onResponse(JSONObject response) {
             Log.d("response", response.toString());
+            Toast.makeText(ctx, response.toString(), Toast.LENGTH_LONG).show();
             Toast.makeText(ctx, "Api Called Successfully", Toast.LENGTH_SHORT).show();
             System.out.println(response.toString());
             BookingDetailsModel res = new Gson().fromJson(response.toString(), BookingDetailsModel.class);
