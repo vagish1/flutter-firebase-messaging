@@ -10,8 +10,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.PixelFormat;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +21,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.cardview.widget.CardView;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.android.volley.AuthFailureError;
@@ -38,16 +41,22 @@ import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
+// import io.flutter.embedding.android.FlutterActivity;
+// import io.flutter.embedding.engine.FlutterEngine;
+// import io.flutter.embedding.engine.FlutterEngineCache;
+// import io.flutter.embedding.engine.dart.DartExecutor;
 // import model.AmbData;
 // import model.AmbResult;
 // import model.BookingDetailsModel;
 import android.widget.Toast;
+
 
 public class FlutterFirebaseMessagingReceiver extends BroadcastReceiver {
   private static final String TAG = "FLTFireMsgReceiver";
@@ -136,17 +145,24 @@ public class FlutterFirebaseMessagingReceiver extends BroadcastReceiver {
                   LinkedTreeMap<String, Object> responseMaap = new Gson().fromJson(response.toString(), LinkedTreeMap.class);
                   LinkedTreeMap dataRes = (LinkedTreeMap) responseMaap.get("data");
                   LinkedTreeMap resultRes = (LinkedTreeMap)  dataRes.get("result");
+                  LinkedTreeMap userLocation = (LinkedTreeMap) resultRes.get("userLocation");
+//                  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//                    Log.d("RuntimeType", .getClass().getTypeName());
+//                  }
 
-                  WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams(
+                  ArrayList<Double> coordinates = (ArrayList<Double>) userLocation.get("coordinates");
+                   WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams(
                           ViewGroup.LayoutParams.MATCH_PARENT,
                           ViewGroup.LayoutParams.WRAP_CONTENT,
                           WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-                          WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+//                          WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+                          WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
                           PixelFormat.TRANSPARENT);
 
                   View inflater = LayoutInflater.from(ctx).inflate(R.layout.ambulance_reminder, null);
                   WindowManager manager = (WindowManager) ctx.getSystemService(Context.WINDOW_SERVICE);
 
+                  View smallIcon = LayoutInflater.from(ctx).inflate(R.layout.small_icon,null);
 
                   TextView bookedBy = inflater.findViewById(R.id.textView2);
                   TextView bookedOn = inflater.findViewById(R.id.textView5);
@@ -168,12 +184,43 @@ public class FlutterFirebaseMessagingReceiver extends BroadcastReceiver {
 //
                   String format = formatter.format(date);
                   bookedOn.setText(pickUpDateTime == 0 ? "N/A" : format.split(" ")[0]);
-                  bookingTime.setText(pickUpDateTime == 0 ? "N/A" : format.split(" ")[1]);
+                  bookingTime.setText(pickUpDateTime == 0 ? "N/A" : format.split(" ")[1] + format.split(" ")[format.split(" ").length-1]);
                   Button acceptBooking = inflater.findViewById(R.id.button);
                   Button cancelBooking = inflater.findViewById(R.id.button2);
                   MediaPlayer player = MediaPlayer.create(ctx, R.raw.ringtone);
 
+                  CardView locationCard = inflater.findViewById(R.id.cardView);
 
+                  locationCard.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                      if (player.isPlaying()) {
+                        player.stop();
+                      }
+
+
+                      manager.removeView(inflater);
+                      layoutParams.width = WindowManager.LayoutParams.WRAP_CONTENT;
+                      layoutParams.gravity = Gravity.RIGHT | Gravity.TOP;
+                      CardView smallCard = smallIcon.findViewById(R.id.smallIcon);
+                      smallCard.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                          manager.removeView(smallIcon);
+                          layoutParams.gravity = Gravity.CENTER ;
+                          layoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;
+                          manager.addView(inflater,layoutParams);
+                        }
+                      });
+                      manager.addView(smallIcon,layoutParams);
+
+
+                      assert coordinates != null;
+                      String uri = "https://www.google.com/maps/dir//"+ coordinates.get(coordinates.size() - 1) +","+coordinates.get(0);
+                      Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                      ctx.startActivity(intent);
+                    }
+                  });
                   acceptBooking.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
